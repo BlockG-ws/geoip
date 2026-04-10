@@ -53,8 +53,9 @@ jobs:
       - name: Generate sha256 checksum for text files
         run: |
           cd ./output/text || exit 1
-          for name in $(ls *.txt); do
-            sha256sum ${name} > ./${name}.sha256sum
+          for name in *.txt; do
+            [ -e "$name" ] || continue
+            sha256sum "$name" > "./$name.sha256sum"
           done
 
       - name: Git push assets to "release" branch
