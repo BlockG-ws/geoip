@@ -1,4 +1,4 @@
-name: Build geoip.dat
+name: Build geoip
 on:
   workflow_dispatch:
   schedule:
@@ -50,16 +50,16 @@ jobs:
         run: |
           go run ./ -c ./config.json
 
-      - name: Generate sha256 checksum for dat files
+      - name: Generate sha256 checksum for text files
         run: |
-          cd ./output || exit 1
-          for name in $(ls *.dat); do
+          cd ./output/text || exit 1
+          for name in $(ls *.txt); do
             sha256sum ${name} > ./${name}.sha256sum
           done
 
       - name: Git push assets to "release" branch
         run: |
-          cd output || exit 1
+          cd output/text || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -72,13 +72,7 @@ jobs:
       - name: Release and upload assets
         run: |
           gh release create ${{ env.TAG_NAME }} -t ${{ env.RELEASE_NAME }} \
-            ./output/geoip.dat \
-            ./output/geoip.dat.sha256sum \
-            ./output/geoip-only-cn-private.dat \
-            ./output/geoip-only-cn-private.dat.sha256sum \
-            ./output/cn.dat \
-            ./output/cn.dat.sha256sum \
-            ./output/private.dat \
-            ./output/private.dat.sha256sum
+            ./output/text/*.txt \
+            ./output/text/*.txt.sha256sum
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
